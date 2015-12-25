@@ -110,6 +110,10 @@ gulp.task('scripts', () =>
       // Note: Since we are not using useref in the scripts build pipeline,
       //       you need to explicitly list your scripts here in the right order
       //       to be correctly concatenated
+      './app/bower_components/d3/d3.js',
+      './app/bower_components/c3/c3.js',
+      './app/bower_components/moment/moment.js',
+      './app/scripts/commits.js',
       './app/scripts/main.js'
       // Other scripts
     ])
