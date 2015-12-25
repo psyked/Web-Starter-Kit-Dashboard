@@ -1,0 +1,13 @@
+.mdl-layout__header {
+  min-height: 44px;
+}
+
+.graph-content {
+  height: calc(70vh - 64px);
+  background: #607d8b;
+}
+
+.mdl-layout__tab-bar,
+.mdl-layout__tab-bar-button {
+  background: darken(#607d8b, 10%);
+}
