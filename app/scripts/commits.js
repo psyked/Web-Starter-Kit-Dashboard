@@ -128,24 +128,7 @@ d3.csv('//raw.githubusercontent.com/psyked/ProjectStats/master/website/serve/out
     return !!(theDate > startDate && theDate < endDate);
   });
 
-  //var avatars = d3.nest()
-  //  .key(function(d) {
-  //    return d.author;
-  //  })
-  //  .key(function(d) {
-  //    return d.avatar;
-  //  })
-  //  .rollup(function(leaves) {
-  //    return leaves.author;
-  //  })
-  //  .entries(commits);
-
-  //d3.selectAll('.toplist .panel').each(function(d, i) {
-  //  renderLeaderboard(commits, avatars, this);
-  //});
-
   var units = 'days';
-
   var results = d3.nest()
     .key(function(d) {
       d.author = d.author.split('_').join(' ');
@@ -156,14 +139,8 @@ d3.csv('//raw.githubusercontent.com/psyked/ProjectStats/master/website/serve/out
         rtn = toTitleCase(d.author.split('<')[0].trim());
       }
       rtn = toTitleCase(rtn.trim());
-      //if(rtn.length === 0) {
-      //  return false;
-      //}
       return rtn;
     })
-    //.key(function(d) {
-    //  return d.author;
-    //})
     .rollup(function(leaves) {
       return leaves.length;
     })
@@ -189,76 +166,23 @@ d3.csv('//raw.githubusercontent.com/psyked/ProjectStats/master/website/serve/out
     .sort(function(a, b) {
       return d3.ascending(a.key, b.key);
     });
-  //.splice(0, COUNT);
 
-  //console.log(results);
-
-  //var results = d3.nest()
-  //  .key(function(d) {
-  //    d.author = d.author.split('_').join(' ');
-  //    d.author = d.author.split('[').join("");
-  //    d.author = d.author.split(']').join("");
-  //    if(d.author.indexOf('<') !== -1) {
-  //      return toTitleCase(d.author.split('<')[0].trim());
-  //    }
-  //    return toTitleCase(d.author.trim());
-  //  })
-  //  .key(function(d) {
-  //    return moment(d.date).format('DD-MM-YYYY');
-  //  })
-  //  .rollup(function(leaves) {
-  //    return leaves.length;
-  //  })
-  //  .entries(commits.filter(function(d) {
-  //    if(d.author.indexOf('unknown') !== -1) {
-  //      return false;
-  //    }
-  //    if(d.author.indexOf('<') !== -1) {
-  //      var email = d.author.split('<')[1].split('>')[0];
-  //      if(email.indexOf('@mmtdigital.co.uk') === -1) {
-  //        return false;
-  //      }
-  //      d.author = toTitleCase(d.author.split('<')[0]);
-  //    }
-  //    return true;
-  //  })).sort(function(a, b) {
-  //    return d3.ascending(a.key, b.key);
-  //  });
-
-  //var timeseries = ['x'];
-  //for(var i = 30, l = 0; i > l; i--) {
-  //  timeseries.push(moment().add(-i, 'days').format('DD-MM-YYYY'));
-  //}
-
-  //var types = {};
   var groups = [];
   var cols = ['Commits'];
 
-  //var row;
   for(var i = 0, l = results.length; i < l; i++) {
     groups.push(results[i].key);
-    //types[results[i].key] = 'area-spline';
-    //groups.push(results[i].key);
-    //
-    //for(var j = 0, jl = 30; j < jl; j++) {
-    //  row.push(0);
-    //}
-    //for(j = 0, jl = results[i].values.length; j < jl; j++) {
-    //  row[timeseries.indexOf(results[i].values[j].key)] = results[i].values[j].values;
-    //}
     cols.push(results[i].values);
   }
-
-  console.log(cols);
 
   var chart = c3.generate({
     bindto: '.graph-content',
     data: {
-      //x: 'key',
-      //xFormat: '%d-%m-%Y',
       type: 'bar',
       columns: [cols],
-      //groups: [groups]
+      colors: {
+        Commits: '#CDDC39'
+      }
     },
     point: {
       show: false
@@ -269,23 +193,8 @@ d3.csv('//raw.githubusercontent.com/psyked/ProjectStats/master/website/serve/out
         categories: groups
       }
     },
-    //axis: {
-    //  x: {
-    //    type: 'timeseries',
-    //    tick: {
-    //      format: '%e %B %Y'
-    //    }
-    //  }
-    //},
     legend: {
       show: false
-      //position: 'right'
-    },
-    //size: {
-    //  height: 258
-    //},
-    //tooltip: {
-    //  grouped: false
-    //}
+    }
   });
 });
