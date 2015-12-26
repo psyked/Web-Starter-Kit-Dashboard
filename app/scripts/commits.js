@@ -1,9 +1,7 @@
-var DAYS = 90;
-//var COUNT = 10;
+var DAYS = 7;
 
 function accentsTidy(s) {
   var r = s.toLowerCase();
-  //r = r.replace(new RegExp(/\s/g), "");
   r = r.replace(new RegExp(/[àáâãäå]/g), "a");
   r = r.replace(new RegExp(/æ/g), "ae");
   r = r.replace(new RegExp(/ç/g), "c");
@@ -14,104 +12,8 @@ function accentsTidy(s) {
   r = r.replace(new RegExp(/œ/g), "oe");
   r = r.replace(new RegExp(/[ùúûü]/g), "u");
   r = r.replace(new RegExp(/[ýÿ]/g), "y");
-  //r = r.replace(new RegExp(/\W/g), "");
   return r;
 }
-//function renderLeaderboard(commits, avatars, panel) {
-//  var units = d3.select(panel).attr('data-timeunit');
-//
-//  if(units) {
-//    var previousResults = d3.nest()
-//      .key(function(d) {
-//        return d.author;
-//      })
-//      .rollup(function(leaves) {
-//        return leaves.length;
-//      })
-//      .entries(commits.filter(function(d) {
-//        var startDate = moment().add(-2, units).startOf(units);
-//        var endDate = moment().add(-1, units).startOf(units);
-//        var theDate = new Date(d.date);
-//        return !!(theDate > startDate && theDate < endDate);
-//      }))
-//      .sort(function(a, b) {
-//        return d3.descending(a.values, b.values);
-//      });
-//  }
-//
-//  var results = d3.nest()
-//    .key(function(d) {
-//      return d.author;
-//    })
-//    .rollup(function(leaves) {
-//      return leaves.length;
-//    })
-//    .entries(commits.filter(function(d) {
-//      if(units) {
-//        var startDate = moment().add(-1, units).startOf(units);
-//        var endDate = moment().startOf(units);
-//        var theDate = new Date(d.date);
-//        return !!(theDate > startDate && theDate < endDate);
-//      } else {
-//        return true;
-//      }
-//    }))
-//    .sort(function(a, b) {
-//      return d3.descending(a.values, b.values);
-//    })
-//    .splice(0, COUNT);
-//
-//  results.forEach(function(d, i) {
-//    var moveIndex = "";
-//    if(units) {
-//      var oldIndex = previousResults.length;
-//      for(var j = 0; j < previousResults.length; j += 1) {
-//        if(previousResults[j]['key'] === d.key) {
-//          oldIndex = j;
-//        }
-//      }
-//      moveIndex = '<i class="fa fa-minus move-icon"></i>';
-//      if(oldIndex > i) {
-//        moveIndex = '<i class="fa fa-arrow-up move-icon up"></i>';
-//      } else if(oldIndex < i) {
-//        moveIndex = '<i class="fa fa-arrow-down move-icon down"></i>';
-//      }
-//    }
-//    d3.select(panel).select('.list').append('div').attr('class', 'commit').html(moveIndex + ' <span class="index">' + (i + 1) + '.</span> ' + '<span class="name">' + d.key + '</span> with ' + d.values.toLocaleString() + ' commits.');
-//  });
-//
-//  var dataToCheck = results;
-//
-//  if(dataToCheck[0]) {
-//    var firstImage = "";
-//    avatars.forEach(function(d, i) {
-//      if(d.key === dataToCheck[0].key) {
-//        firstImage = d.values[0].key;
-//      }
-//    });
-//    d3.select(panel).select('.avatars-area .first').append('img').attr('src', firstImage);
-//  }
-//
-//  if(dataToCheck[1]) {
-//    var secondImage = "";
-//    avatars.forEach(function(d, i) {
-//      if(d.key === dataToCheck[1].key) {
-//        secondImage = d.values[0].key;
-//      }
-//    });
-//    d3.select(panel).select('.avatars-area .second').append('img').attr('src', secondImage);
-//  }
-//
-//  if(dataToCheck[2]) {
-//    var thirdImage = "";
-//    avatars.forEach(function(d, i) {
-//      if(d.key === dataToCheck[2].key) {
-//        thirdImage = d.values[0].key;
-//      }
-//    });
-//    d3.select(panel).select('.avatars-area .third').append('img').attr('src', thirdImage);
-//  }
-//}
 
 function toTitleCase(str) {
   return str.replace(/\b./g, function(m) {
@@ -129,6 +31,16 @@ d3.csv('//raw.githubusercontent.com/psyked/ProjectStats/master/website/serve/out
   });
 
   var units = 'days';
+  var threeMonths = commits.filter(function(d) {
+    if(units) {
+      var startDate = moment().add(-DAYS, units).startOf(units);
+      var endDate = moment().startOf(units);
+      var commitDate = new Date(d.date);
+      return !!(commitDate > startDate && commitDate < endDate);
+    } else {
+      return true;
+    }
+  });
   var results = d3.nest()
     .key(function(d) {
       d.author = d.author.split('_').join(' ');
@@ -144,16 +56,7 @@ d3.csv('//raw.githubusercontent.com/psyked/ProjectStats/master/website/serve/out
     .rollup(function(leaves) {
       return leaves.length;
     })
-    .entries(commits.filter(function(d) {
-      if(units) {
-        var startDate = moment().add(-DAYS, units).startOf(units);
-        var endDate = moment().startOf(units);
-        var theDate = new Date(d.date);
-        return !!(theDate > startDate && theDate < endDate);
-      } else {
-        return true;
-      }
-    }))
+    .entries(threeMonths)
     .filter(function(d) {
       // todo: Tie this into the Bitbucket Team Group
       if(d.key.length === 0 || d.key === "Openenergygroup" || d.key === "Sbfsolutions" ||
@@ -175,17 +78,18 @@ d3.csv('//raw.githubusercontent.com/psyked/ProjectStats/master/website/serve/out
     cols.push(results[i].values);
   }
 
+  var maxValue = d3.max(results, function(d) {
+    return parseInt(d.values, 10);
+  });
+
   var chart = c3.generate({
     bindto: '.graph-content',
     data: {
       type: 'bar',
       columns: [cols],
       colors: {
-        Commits: '#CDDC39'
+        Commits: '#EF5350'
       }
-    },
-    point: {
-      show: false
     },
     axis: {
       x: {
@@ -195,6 +99,36 @@ d3.csv('//raw.githubusercontent.com/psyked/ProjectStats/master/website/serve/out
     },
     legend: {
       show: false
+    },
+    padding: {
+      top: 40,
+      right: 56,
+      bottom: 40,
+      left: 80
+    },
+    grid: {
+      focus: {
+        show: false
+      }
+    },
+    tooltip: {
+      position: function(data, width, height, element) {
+        var maxHeight = parseInt(d3.select(element).attr('height'), 10);
+        return {
+          top: maxHeight - 18 - ((data[0].value / maxValue) * maxHeight) * .9,
+          left: parseInt(d3.select(element).attr('x'), 10) + (parseInt(d3.select(element).attr('width'), 10))
+        }
+      }
     }
   });
+
+  function updateWindow() {
+    chart.resize({
+      height: parseInt(d3.select('.page-content').style('height'), 10)
+    });
+  }
+
+  updateWindow();
+
+  window.onresize = updateWindow;
 });

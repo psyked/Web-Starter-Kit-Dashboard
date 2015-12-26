@@ -1,16 +1,25 @@
-@import "../bower_components/c3/c3.css";
+@import "../bower_components/c3/c3";
 
 .mdl-layout__header {
   min-height: 44px;
 }
 
 .graph-content {
-  margin: 0 40px;
+  //margin: 0 40px;
 }
 
 .page-content {
   height: calc(70vh - 64px);
   background: #607D8B;
+
+  .c3 path, .c3 line {
+    fill: none;
+    stroke: #fff;
+  }
+
+  .c3 text {
+    fill: #fff;
+  }
 }
 
 .mdl-layout__tab-bar,
